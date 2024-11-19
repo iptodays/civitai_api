@@ -1,7 +1,7 @@
 name: civitai_api
-description: "A new Flutter package project."
+description: "civitai api client."
 version: 0.0.1
-homepage:
+homepage: https://github.com/iptodays/civitai_api
 
 environment:
   sdk: ^3.5.4
