@@ -2,7 +2,7 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-14 22:58:23
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-17 16:49:47
+ * @LastEditTime: 2024-11-19 20:26:30
  * @FilePath: /civitai_api/lib/src/civita_api.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
@@ -10,10 +10,22 @@
 import 'dart:io';
 
 import 'package:civitai_api/src/creator.dart';
+import 'package:civitai_api/src/image.dart';
 import 'package:dio/dio.dart';
 
+import 'model.dart';
+import 'tag.dart';
+
 extension CivitaResp on Response {
-  bool get isOk => statusCode == HttpStatus.ok;
+  bool get isOk => statusCode == HttpStatus.ok && data is Map;
+}
+
+extension ParamSetter on Map<String, dynamic> {
+  void setIfNotNull(String key, dynamic value) {
+    if (value != null) {
+      this[key] = value;
+    }
+  }
 }
 
 enum NsfwState {
@@ -25,10 +37,23 @@ enum NsfwState {
   x,
 }
 
-enum SortState {
+enum ImageSortState {
   mostReactions,
   mostComments,
   newest,
+}
+
+enum ModelSortState {
+  highestRated,
+  mostDownloads,
+  newest,
+}
+
+enum AllowCommercialUseState {
+  none,
+  image,
+  rent,
+  sell,
 }
 
 enum PeriodState {
@@ -37,6 +62,16 @@ enum PeriodState {
   month,
   week,
   day,
+}
+
+enum TypesState {
+  checkpoint,
+  textualInversion,
+  hypernetwork,
+  aestheticGradient,
+  lora,
+  controlnet,
+  poses,
 }
 
 class CivitaApi {
@@ -56,10 +91,26 @@ class CivitaApi {
         NsfwState.x.name: 'X',
       };
 
-  Map<String, String> get sortStateMap => {
-        SortState.mostReactions.name: 'Most Reactions',
-        SortState.mostComments.name: 'Most Comments',
-        SortState.newest.name: 'Newest',
+  Map<String, String> get imageSortStateMap => {
+        ImageSortState.mostReactions.name: 'Most Reactions',
+        ImageSortState.mostComments.name: 'Most Comments',
+        ImageSortState.newest.name: 'Newest',
+      };
+
+  Map<String, String> get modelSortStateMap => {
+        ModelSortState.highestRated.name: 'Highest Rated',
+        ModelSortState.mostDownloads.name: 'Most Downloaded',
+        ModelSortState.newest.name: 'Newest',
+      };
+
+  Map<String, String> get typeStateMap => {
+        TypesState.checkpoint.name: 'Checkpoint',
+        TypesState.textualInversion.name: 'TextualInversion',
+        TypesState.hypernetwork.name: 'Hypernetwork',
+        TypesState.aestheticGradient.name: 'AestheticGradient',
+        TypesState.lora.name: 'LORA',
+        TypesState.controlnet.name: 'Controlnet',
+        TypesState.poses.name: 'Poses',
       };
 
   Map<String, String> get periodStateMap => {
@@ -68,6 +119,13 @@ class CivitaApi {
         PeriodState.month.name: 'Month',
         PeriodState.week.name: 'Week',
         PeriodState.day.name: 'Day',
+      };
+
+  Map<String, String> get allowCommercialUseStateMap => {
+        AllowCommercialUseState.none.name: 'None',
+        AllowCommercialUseState.image.name: 'Image',
+        AllowCommercialUseState.rent.name: 'Rent',
+        AllowCommercialUseState.sell.name: 'Sell',
       };
 
   factory CivitaApi(String authorization) {
@@ -93,74 +151,124 @@ class CivitaApi {
   }
 
   /// https://github.com/civitai/civitai/wiki/REST-API-Reference#get-apiv1creators
-  Future<CreatorResp?> getCreators({
+  Future<CivitaCreatorResp?> getCreators({
     int? limit,
     int? page,
     String? query,
   }) async {
     Map<String, dynamic>? params = {};
-    if (limit != null) {
-      params['limit'] = limit;
-    }
-    if (page != null) {
-      params['page'] = page;
-    }
-    if (query != null) {
-      params['query'] = query;
-    }
+    params
+      ..setIfNotNull('limit', limit)
+      ..setIfNotNull('page', page)
+      ..setIfNotNull('query', query);
     Response response = await _get(
       '/creators',
       params,
     );
     if (response.isOk) {
-      return CreatorResp.fromJson(response.data);
+      return CivitaCreatorResp.fromJson(response.data);
     }
     return null;
   }
 
   /// https://github.com/civitai/civitai/wiki/REST-API-Reference#get-apiv1images
-  Future<void> getImages({
+  Future<CivitaImageResp?> getImages({
     int? limit,
     int? postId,
     int? modelId,
     int? modelVersionId,
     String? username,
     NsfwState? nsfw,
-    SortState? sort,
+    ImageSortState? sort,
     PeriodState? period,
     int? page,
   }) async {
     Map<String, dynamic> params = {};
-    if (limit != null) {
-      params['limit'] = limit;
-    }
-    if (postId != null) {
-      params['postId'] = postId;
-    }
-    if (modelId != null) {
-      params['modelId'] = modelId;
-    }
-    if (modelVersionId != null) {
-      params['modelVersionId'] = modelVersionId;
-    }
-    if (username != null) {
-      params['username'] = username;
-    }
-    if (nsfw != null) {
-      params['nsfw'] = nsfwStateMap[nsfw.name];
-    }
-    if (sort != null) {
-      params['sort'] = sortStateMap[sort.name];
-    }
-    if (period != null) {
-      params['period'] = periodStateMap[period.name];
-    }
+    params
+      ..setIfNotNull('limit', limit)
+      ..setIfNotNull('postId', postId)
+      ..setIfNotNull('modelId', modelId)
+      ..setIfNotNull('modelVersionId', modelVersionId)
+      ..setIfNotNull('username', username)
+      ..setIfNotNull('nsfw', nsfwStateMap[nsfw?.name])
+      ..setIfNotNull('sort', imageSortStateMap[sort?.name])
+      ..setIfNotNull('period', periodStateMap[period?.name])
+      ..setIfNotNull('page', page);
     Response response = await _get(
       '/images',
       params,
     );
     if (response.isOk) {
-      print(response.data);
+      return CivitaImageResp.fromJson(response.data);
+    }
+    return null;
+  }
+
+  /// https://github.com/civitai/civitai/wiki/REST-API-Reference#get-apiv1models
+  Future<CivitaModelResp?> getModels({
+    int? limit,
+    int? page,
+    String? query,
+    String? tag,
+    String? username,
+    TypesState? types,
+    ModelSortState? sort,
+    PeriodState? period,
+    bool? favorites,
+    bool? hidden,
+    bool? primaryFileOnly,
+    bool? allowNoCredit,
+    bool? allowDerivatives,
+    bool? allowDifferentLicenses,
+    AllowCommercialUseState? allowCommercialUse,
+    bool? nsfw,
+    bool? supportsGeneration,
+  }) async {
+    Map<String, dynamic> params = {};
+    params
+      ..setIfNotNull('limit', limit)
+      ..setIfNotNull('page', page)
+      ..setIfNotNull('query', query)
+      ..setIfNotNull('tag', tag)
+      ..setIfNotNull('username', username)
+      ..setIfNotNull('types', typeStateMap[types?.name])
+      ..setIfNotNull('sort', modelSortStateMap[sort?.name])
+      ..setIfNotNull('period', periodStateMap[period?.name])
+      ..setIfNotNull('favorites', favorites)
+      ..setIfNotNull('hidden', hidden)
+      ..setIfNotNull('primaryFileOnly', primaryFileOnly)
+      ..setIfNotNull('allowNoCredit', allowNoCredit)
+      ..setIfNotNull('allowDerivatives', allowDerivatives)
+      ..setIfNotNull('allowDifferentLicenses', allowDifferentLicenses)
+      ..setIfNotNull('allowCommercialUse',
+          allowCommercialUseStateMap[allowCommercialUse?.name])
+      ..setIfNotNull('nsfw', nsfw)
+      ..setIfNotNull('supportsGeneration', supportsGeneration);
+    Response response = await _get(
+      '/models',
+      params,
+    );
+    print(response.data);
+    if (response.isOk) {
+      return CivitaModelResp.fromJson(response.data);
+    }
+    return null;
+  }
+
+  /// https://github.com/civitai/civitai/wiki/REST-API-Reference#get-apiv1tags
+  Future<CivitaTagResp?> getTags({
+    int? limit,
+    int? page,
+    String? query,
+  }) async {
+    Map<String, dynamic> params = {};
+    params
+      ..setIfNotNull('limit', limit)
+      ..setIfNotNull('page', page)
+      ..setIfNotNull('query', query);
+    Response response = await _get('/tags', params);
+    if (response.isOk) {
+      return CivitaTagResp.fromJson(response.data);
     }
     return null;
   }

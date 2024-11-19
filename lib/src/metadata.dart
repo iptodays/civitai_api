@@ -2,13 +2,13 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-14 23:24:42
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-14 23:30:08
+ * @LastEditTime: 2024-11-17 20:34:29
  * @FilePath: /civitai_api/lib/src/metadata.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
  */
 
-class Metadata {
+class CivitaMetadata {
   /// The total number of items available
   late final int totalItems;
 
@@ -21,19 +21,23 @@ class Metadata {
   /// The total number of pages
   late final int totalPages;
 
+  /// The id of the first image in the next batch
+  String? nextCursor;
+
   /// The url to get the next batch of items
   String? nextPage;
 
   /// The url to get the previous batch of items
   String? prevPage;
 
-  Metadata.fromJson(Map<String, dynamic> json) {
-    totalItems = json['totalItems'];
-    currentPage = json['currentPage'];
-    pageSize = json['pageSize'];
-    totalPages = json['totalPages'];
+  CivitaMetadata.fromJson(Map<String, dynamic> json) {
+    totalItems = json['totalItems'] ?? 0;
+    currentPage = json['currentPage'] ?? 0;
+    pageSize = json['pageSize'] ?? 0;
+    totalPages = json['totalPages'] ?? 0;
     nextPage = json['nextPage'];
     prevPage = json['prevPage'];
+    nextCursor = json['nextCursor'];
   }
 
   Map<String, dynamic> toJson() {
@@ -44,6 +48,7 @@ class Metadata {
       'totalPages': totalPages,
       'nextPage': nextPage,
       'prevPage': prevPage,
+      'nextCursor': nextCursor,
     };
   }
 }

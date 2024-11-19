@@ -2,7 +2,7 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-14 23:28:11
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-15 13:06:10
+ * @LastEditTime: 2024-11-19 20:34:02
  * @FilePath: /civitai_api/lib/src/creator.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
@@ -10,15 +10,19 @@
 
 import 'metadata.dart';
 
-class CreatorResp {
-  late final List<Creator> items;
+class CivitaCreatorResp {
+  late final List<CivitaCreator> items;
 
-  late final Metadata metadata;
+  late final CivitaMetadata metadata;
 
   @override
-  CreatorResp.fromJson(Map<String, dynamic> json) {
-    items = json['items'].map<Creator>((e) => Creator.fromJson(e)).toList();
-    metadata = Metadata.fromJson(json['metadata']);
+  CivitaCreatorResp.fromJson(Map<String, dynamic> json) {
+    items = json['items']
+        .map<CivitaCreator>(
+          (e) => CivitaCreator.fromJson(e),
+        )
+        .toList();
+    metadata = CivitaMetadata.fromJson(json['metadata']);
   }
 
   Map<String, dynamic> toJson() {
@@ -29,7 +33,7 @@ class CreatorResp {
   }
 }
 
-class Creator {
+class CivitaCreator {
   /// The username of the creator
   late final String username;
 
@@ -37,12 +41,12 @@ class Creator {
   late final int modelCount;
 
   /// Url to get all models from this user
-  late final String link;
+  String? link;
 
-  /// The image of the creator
+  /// The image of the creator | The url of the creators avatar
   String? image;
 
-  Creator.fromJson(Map<String, dynamic> json) {
+  CivitaCreator.fromJson(Map<String, dynamic> json) {
     username = json['username'];
     modelCount = json['modelCount'] ?? 0;
     link = json['link'];
