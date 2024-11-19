@@ -2,7 +2,7 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-19 10:10:35
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-19 21:37:20
+ * @LastEditTime: 2024-11-19 21:46:02
  * @FilePath: /civitai_api/lib/src/model.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
@@ -88,7 +88,11 @@ class CivitaModel {
     name = json['name'] ?? '';
     description = json['description'] ?? '';
     allowNoCredit = json['allowNoCredit'] ?? false;
-    allowCommercialUse = json['allowCommercialUse']?.cast<String>();
+    if (json['allowCommercialUse'] != null) {
+      allowCommercialUse = json['allowCommercialUse'].cast<String>();
+    } else {
+      allowCommercialUse = [];
+    }
     allowDerivatives = json['allowDerivatives'] ?? false;
     allowDifferentLicense = json['allowDifferentLicense'] ?? false;
     type = json['type'] ?? '';
@@ -96,7 +100,11 @@ class CivitaModel {
     poi = json['poi'] ?? false;
     nsfw = json['nsfw'] ?? false;
     nsfwLevel = json['nsfwLevel'] ?? 0;
-    tags = json['tags']?.cast<String>();
+    if (json['tags'] != null) {
+      tags = json['tags'].cast<String>();
+    } else {
+      tags = [];
+    }
     mode = json['mode'] ?? '';
     if (json['creator'] != null) {
       creator = CivitaCreator.fromJson(json['creator']);

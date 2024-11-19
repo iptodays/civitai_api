@@ -2,7 +2,7 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-14 22:58:23
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-19 20:26:30
+ * @LastEditTime: 2024-11-19 21:57:07
  * @FilePath: /civitai_api/lib/src/civita_api.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
@@ -11,6 +11,7 @@ import 'dart:io';
 
 import 'package:civitai_api/src/creator.dart';
 import 'package:civitai_api/src/image.dart';
+import 'package:civitai_api/src/model_version.dart';
 import 'package:dio/dio.dart';
 
 import 'model.dart';
@@ -163,7 +164,7 @@ class CivitaApi {
       ..setIfNotNull('query', query);
     Response response = await _get(
       '/creators',
-      params,
+      query: params,
     );
     if (response.isOk) {
       return CivitaCreatorResp.fromJson(response.data);
@@ -196,7 +197,7 @@ class CivitaApi {
       ..setIfNotNull('page', page);
     Response response = await _get(
       '/images',
-      params,
+      query: params,
     );
     if (response.isOk) {
       return CivitaImageResp.fromJson(response.data);
@@ -246,11 +247,29 @@ class CivitaApi {
       ..setIfNotNull('supportsGeneration', supportsGeneration);
     Response response = await _get(
       '/models',
-      params,
+      query: params,
     );
     print(response.data);
     if (response.isOk) {
       return CivitaModelResp.fromJson(response.data);
+    }
+    return null;
+  }
+
+  /// https://github.com/civitai/civitai/wiki/REST-API-Reference#get-apiv1modelsmodelid
+  Future<CivitaModel?> getModelById(int id) async {
+    Response response = await _get('/models/$id');
+    if (response.isOk) {
+      return CivitaModel.fromJson(response.data);
+    }
+    return null;
+  }
+
+  /// https://github.com/civitai/civitai/wiki/REST-API-Reference#get-apiv1models-versionsmodelversionid
+  Future<CivitaModelVersion?> getModelVersionById(int id) async {
+    Response response = await _get('/model-versions/$id');
+    if (response.isOk) {
+      return CivitaModelVersion.fromJson(response.data);
     }
     return null;
   }
@@ -266,7 +285,10 @@ class CivitaApi {
       ..setIfNotNull('limit', limit)
       ..setIfNotNull('page', page)
       ..setIfNotNull('query', query);
-    Response response = await _get('/tags', params);
+    Response response = await _get(
+      '/tags',
+      query: params,
+    );
     if (response.isOk) {
       return CivitaTagResp.fromJson(response.data);
     }
@@ -274,9 +296,9 @@ class CivitaApi {
   }
 
   Future<Response> _get(
-    String url,
+    String url, {
     Map<String, dynamic>? query,
-  ) async {
+  }) async {
     try {
       Response response = await _dio.get(
         url,

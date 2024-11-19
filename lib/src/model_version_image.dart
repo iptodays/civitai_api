@@ -2,14 +2,14 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-19 21:05:32
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-19 21:08:44
+ * @LastEditTime: 2024-11-19 21:47:39
  * @FilePath: /civitai_api/lib/src/model_version_image.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
  */
 class CivitaModelVersionImage {
   /// The id of the image
-  late final int id;
+  int? id;
 
   /// The url of the image at it's source resolution
   late final String url;
@@ -38,7 +38,7 @@ class CivitaModelVersionImage {
   CivitaModelVersionImage.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     url = json['url'];
-    nsfwLevel = json['nsfwLevel'];
+    nsfwLevel = json['nsfwLevel'] ?? -1;
     width = json['width'];
     height = json['height'];
     hash = json['hash'];

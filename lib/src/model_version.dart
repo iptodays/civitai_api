@@ -2,7 +2,7 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-19 20:45:42
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-19 21:22:29
+ * @LastEditTime: 2024-11-19 21:56:09
  * @FilePath: /civitai_api/lib/src/model_version.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
@@ -16,7 +16,7 @@ class CivitaModelVersion {
   late final int id;
 
   /// The index of the model version
-  late final int index;
+  int? index;
 
   /// The name of the model version
   late final String name;
@@ -66,7 +66,11 @@ class CivitaModelVersion {
     nsfwLevel = json['nsfwLevel'] ?? 0;
     downloadUrl = json['downloadUrl'] ?? '';
     createdAt = json['createdAt'] ?? '';
-    trainedWords = json['trainedWords'].cast<String>();
+    if (json['trainedWords'] != null) {
+      trainedWords = json['trainedWords'].cast<String>();
+    } else {
+      trainedWords = [];
+    }
     if (json['files'] != null) {
       files =
           json['files'].map<CivitaFile>((e) => CivitaFile.fromJson(e)).toList();
