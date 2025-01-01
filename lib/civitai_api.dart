@@ -2,7 +2,7 @@
  * @Author: A kingiswinter@gmail.com
  * @Date: 2024-11-13 23:52:09
  * @LastEditors: A kingiswinter@gmail.com
- * @LastEditTime: 2024-11-19 22:02:40
+ * @LastEditTime: 2024-12-05 13:52:22
  * @FilePath: /civitai_api/lib/civitai_api.dart
  * 
  * Copyright (c) 2024 by A kingiswinter@gmail.com, All Rights Reserved.
@@ -180,6 +180,7 @@ class CivitaApi {
     int? postId,
     int? modelId,
     int? modelVersionId,
+    String? nextCursor,
     String? username,
     NsfwState? nsfw,
     ImageSortState? sort,
@@ -196,7 +197,8 @@ class CivitaApi {
       ..setIfNotNull('nsfw', nsfwStateMap[nsfw?.name])
       ..setIfNotNull('sort', imageSortStateMap[sort?.name])
       ..setIfNotNull('period', periodStateMap[period?.name])
-      ..setIfNotNull('page', page);
+      ..setIfNotNull('page', page)
+      ..setIfNotNull('cursor', nextCursor);
     Response response = await _get(
       '/images',
       query: params,
